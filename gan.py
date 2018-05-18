@@ -13,16 +13,18 @@ class GAN:
     :param beta1: The beta1 parameter for Adam.
     """
 
-    def __init__(self, real_size, z_size, learning_rate, num_classes=10, alpha=0.2, beta1=0.5):
-        tf.reset_default_graph ()
+    def __init__(self, input_real, z_size, learning_rate, num_classes=10, alpha=0.2, beta1=0.5):
 
         self.learning_rate = tf.Variable (learning_rate, trainable=False)
-        self.input_real, self.input_z, self.y, self.label_mask = self.model_inputs (real_size, z_size)
+        self.input_real = input_real
+        self.input_z = tf.placeholder(tf.float32, (None, z_size), name='input_z')
+        self.y = tf.placeholder(tf.int32, (None), name='y')
+        self.label_mask = tf.placeholder(tf.int32, (None), name='label_mask')
         self.drop_rate = tf.placeholder_with_default (.5, (), "drop_rate")
 
         loss_results = self.model_loss (self.input_real, self.input_z,
-                                   real_size[2], self.y, num_classes, label_mask=self.label_mask,
-                                   alpha=0.2,
+                                   self.input_real.shape[3], self.y, num_classes, label_mask=self.label_mask,
+                                   alpha=alpha,
                                    drop_rate=self.drop_rate)
         self.d_loss, self.g_loss, self.correct, self.masked_correct, self.samples = loss_results
 
@@ -113,7 +115,7 @@ class GAN:
 
         return d_train_opt, g_train_opt, shrink_lr
 
-    def generator(z, output_dim, reuse=False, alpha=0.2, training=True, size_mult=128):
+    def generator(self,z, output_dim, reuse=False, alpha=0.2, training=True, size_mult=128):
         with tf.variable_scope ('generator', reuse=reuse):
             # First fully connected layer
             x1 = tf.layers.dense (z, 4 * 4 * size_mult * 4)
@@ -137,7 +139,7 @@ class GAN:
 
             return out
 
-    def discriminator(x, reuse=False, alpha=0.2, drop_rate=0., num_classes=10, size_mult=64):
+    def discriminator(self,x, reuse=False, alpha=0.2, drop_rate=0., num_classes=10, size_mult=64):
         with tf.variable_scope ('discriminator', reuse=reuse):
             x = tf.layers.dropout (x, rate=drop_rate / 2.5)
 

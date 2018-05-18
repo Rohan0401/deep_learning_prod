@@ -44,7 +44,7 @@ def train(net, dataset, epochs, batch_size, z_size):
             t1e = time.time ()
             num_examples = 0
             num_correct = 0
-            for x, y, label_mask in dataset.batches (batch_size):
+            for x, y, label_mask in dataset.batches (batch_size, dataset, "train"):
                 assert 'int' in str (y.dtype)
                 steps += 1
                 num_examples += label_mask.sum ()
@@ -68,7 +68,7 @@ def train(net, dataset, epochs, batch_size, z_size):
 
             num_examples = 0
             num_correct = 0
-            for x, y in dataset.batches (batch_size, which_set="test"):
+            for x, y in dataset.batches (batch_size, dataset, which_set="test"):
                 assert 'int' in str (y.dtype)
                 num_examples += x.shape[0]
 
@@ -109,10 +109,10 @@ def main():
 
     real_size = (32, 32, 3)
     z_size = 100
-    learning_rate = 0.0002
+    learning_rate = 0.0003
 
     tf.reset_default_graph ()
-    input_real = tf.placeholder (dtype=tf.float32, shape=(None,) + real_size, name='input_real')
+    input_real = tf.placeholder (dtype=tf.float32, name='input_real', shape=(None,) + real_size)
     net = GAN (input_real, z_size, learning_rate)
 
     # Prepare dataset
