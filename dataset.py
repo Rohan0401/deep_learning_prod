@@ -1,5 +1,7 @@
 import numpy as np
 
+import utils
+
 class Dataset:
     def __init__(self, train, test, val_frac=0.5, shuffle=True, scale_func=None):
         split_idx = int (len (test['y']) * (1 - val_frac))
@@ -17,7 +19,7 @@ class Dataset:
         self.test_x = np.rollaxis (self.test_x, 3)
 
         if scale_func is None:
-            self.scaler = scale
+            self.scaler = utils.scale
         else:
             self.scaler = scale_func
         self.train_x = self.scaler (self.train_x)
@@ -25,7 +27,7 @@ class Dataset:
         self.test_x = self.scaler (self.test_x)
         self.shuffle = shuffle
 
-    def batches(self, batch_size, which_set="train"):
+    def batches(self, batch_size, dataset, which_set="train"):
         x_name = which_set + "_x"
         y_name = which_set + "_y"
 
