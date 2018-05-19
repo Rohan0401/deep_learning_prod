@@ -26,7 +26,7 @@ class GAN:
                                    self.input_real.shape[3], self.y, num_classes, label_mask=self.label_mask,
                                    alpha=alpha,
                                    drop_rate=self.drop_rate)
-        self.d_loss, self.g_loss, self.correct, self.masked_correct, self.samples, self.pred_class \
+        self.d_loss, self.g_loss, self.correct, self.masked_correct, self.samples, self.pred_class ,\
                     self.discriminator_class_logits, self.discriminator_out = \
                                 loss_results
 
