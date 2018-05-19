@@ -13,20 +13,22 @@ class GAN:
     :param beta1: The beta1 parameter for Adam.
     """
 
-    def __init__(self, input_real, z_size, learning_rate, num_classes=10, alpha=0.2, beta1=0.5):
+    def __init__(self, input_real, z_size, learning_rate, num_classes=10, alpha=0.2, beta1=0.5, drop_rate = 0.5):
 
         self.learning_rate = tf.Variable (learning_rate, trainable=False)
         self.input_real = input_real
         self.input_z = tf.placeholder(tf.float32, (None, z_size), name='input_z')
         self.y = tf.placeholder(tf.int32, (None), name='y')
         self.label_mask = tf.placeholder(tf.int32, (None), name='label_mask')
-        self.drop_rate = tf.placeholder_with_default (.5, (), "drop_rate")
+        self.drop_rate = tf.placeholder_with_default (drop_rate, (), "drop_rate")
 
         loss_results = self.model_loss (self.input_real, self.input_z,
                                    self.input_real.shape[3], self.y, num_classes, label_mask=self.label_mask,
                                    alpha=alpha,
                                    drop_rate=self.drop_rate)
-        self.d_loss, self.g_loss, self.correct, self.masked_correct, self.samples = loss_results
+        self.d_loss, self.g_loss, self.correct, self.masked_correct, self.samples, self.pred_class \
+                    self.discriminator_class_logits, self.discriminator_out = \
+                                loss_results
 
         self.d_opt, self.g_opt, self.shrink_lr = self.model_opt (self.d_loss, self.g_loss, self.learning_rate, beta1)
 
@@ -85,12 +87,12 @@ class GAN:
         sample_moments = tf.reduce_mean (sample_features, axis=0)
         g_loss = tf.reduce_mean (tf.abs (data_moments - sample_moments))
 
-        pred_class = tf.cast (tf.argmax (class_logits_on_data, 1), tf.int32)
+        pred_class = tf.cast (tf.argmax (class_logits_on_data, 1), tf.int32, name='pred_class')
         eq = tf.equal (tf.squeeze (y), pred_class)
-        correct = tf.reduce_sum (tf.to_float (eq))
+        correct = tf.reduce_sum (tf.to_float (eq), name='correct_pred_sum')
         masked_correct = tf.reduce_sum (label_mask * tf.to_float (eq))
 
-        return d_loss, g_loss, correct, masked_correct, g_model
+        return d_loss, g_loss, correct, masked_correct, g_model, pred_class , class_logits_on_data, d_model_real
 
     def model_opt(self, d_loss, g_loss, learning_rate, beta1):
         """

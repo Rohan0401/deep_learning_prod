@@ -16,7 +16,7 @@ def create_checkpoints_dir():
     Creates checkpoints directory if doesn't exists
     :return:
     """
-    if os.path.exists (checkpoints_dir):
+    if not os.path.exists (checkpoints_dir):
         os.makedirs (checkpoints_dir)
 
 
@@ -120,7 +120,7 @@ def main():
 
     # train the model
     batch_size = 128
-    epochs = 25
+    epochs = 1
 
     _, _, _ = train (net, dataset, epochs, batch_size, z_size)
 
