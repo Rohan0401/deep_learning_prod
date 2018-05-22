@@ -23,7 +23,7 @@ from tensorflow.contrib.util import make_tensor_proto
 
 def parse_arg():
     parser = ArgumentParser(description="Request a TensorFlow server for a prediction on the image")
-    parser.add_argument("-s", "--saver",
+    parser.add_argument("-s", "--server",
                         dest="server",
                         default="172.17.0.2:9000",
                         help="prediction service host:port")
@@ -55,7 +55,7 @@ def main():
 
         start = time.time()
 
-        request = prediction_service_pb2()
+        request = predict_pb2.PredictRequest()
 
         # Call GAN model to make prediction on the image
 
@@ -73,6 +73,6 @@ def main():
         print(result)
         print("Time eplapsed: {}".format(time_diff))
 
-    if __name__ == '__main__':
-        main()
+if __name__ == '__main__':
+    main()
 
